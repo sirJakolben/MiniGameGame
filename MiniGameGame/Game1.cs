@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
@@ -12,7 +13,11 @@ public class Game1 : Core
     Point desiredGrid;
     double sizeMultiplyer;
     double gridGap;
+    (int, int, int)[] tickTackToeClickable;
+    (int, int, int)[] tickTackToeUI;
+
     Point lastWindowSize;
+    int gameSelector;
 
     // all the textures
     private Texture2D clickPixelBlack;
@@ -30,7 +35,7 @@ public class Game1 : Core
     {
         desiredGrid = new Point(16,16);
         sizeMultiplyer = 0.8;
-        
+        gameSelector = 1; // => tic tac toe
 
         base.Initialize();
     }
@@ -47,14 +52,37 @@ public class Game1 : Core
 
     protected override void Update(GameTime gameTime)
     {
-        Point currentSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
-        if (currentSize != lastWindowSize)
+        Point currentWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
+        if (currentWindowSize != lastWindowSize)
         {
-            gridCoords = Grid.Coords(currentSize.X, currentSize.Y, desiredGrid, sizeMultiplyer, out gridGap);
-            lastWindowSize = currentSize;
+            gridCoords = Grid.Coords(currentWindowSize, desiredGrid, sizeMultiplyer, out gridGap);
+            lastWindowSize = currentWindowSize;
+            switch (gameSelector)
+            {
+            case 1:
+                tickTackToeUI = Grid.TicTacToeCoords(desiredGrid, out tickTackToeClickable);
+                break;
+            case 2:
+                // Code für Wert2
+                break;          
+            }
+            
         }
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
+        
+        switch (gameSelector)
+        {
+            case 1:
+                
+                break;
+            case 2:
+                // Code für Wert2
+                break;
+
+        }
+            
+
+
+
 
         base.Update(gameTime);
     }
@@ -67,9 +95,25 @@ public class Game1 : Core
         //SpriteBatch.Draw(layout, Vector2.Zero, Color.White);
         foreach (var element in gridCoords)
         {
-            SpriteBatch.Draw(clickPixelBlack, new Vector2(element.X, element.Y), null , Color.White, 0f, Vector2.Zero, (float)pixelDimentions, SpriteEffects.None, 0.0f);
+            SpriteBatch.Draw(clickPixelBlack, new Vector2(element.X, element.Y), null , Color.White, 0f,
+                             Vector2.Zero, (float)pixelDimentions, SpriteEffects.None, 0.0f);
+        }       
+        switch (gameSelector)
+        {
+            case 1:
+                foreach (var element in tickTackToeUI)
+                {
+                    if (element.Item3 == 2)
+                        SpriteBatch.Draw(clickPixelGray, new Vector2(element.Item1, element.Item2), null, Color.White, 0f,
+                                         Vector2.Zero, (float)pixelDimentions, SpriteEffects.None, 0.0f);
+                }
+                break;
+            case 2:
+                // Code für Wert2
+                break;
+
         }
-        SpriteBatch.End(); 
-        base.Draw(gameTime);
+            SpriteBatch.End();
+            base.Draw(gameTime);
     }
 }

@@ -1,0 +1,20 @@
+# Binärdateien & temporäres Buildzeug
+bin/
+obj/
+
+# VS Code Settings
+.vscode/
+
+# Build-Artefakte
+*.exe
+*.dll
+*.pdb
+*.vsix
+
+# User-spezifische Dateien
+*.user
+*.suo
+
+# Lokale History / Plugins
+.history/
+.ionide/
