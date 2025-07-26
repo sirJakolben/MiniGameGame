@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
+using MiniGameLogic;
 
 namespace MiniGameGame;
 
@@ -13,12 +13,17 @@ public class Game1 : Core
     Point desiredGrid;
     double sizeMultiplyer;
     double gridGap;
-    (int, int, int)[] tickTackToeClickable;
-    (int, int, int)[] tickTackToeUI;
+
+    (int, int, int)[] ticTacToeClickable;
+    (int, int, int)[] ticTacToeUI;
+    (int, int, int)[] ticTacToePlaced;
 
     Point lastWindowSize;
     int gameSelector;
+    bool isSinglePlr;
 
+
+    MouseState mouseState;
     // all the textures
     private Texture2D clickPixelBlack;
     private Texture2D clickPixelGray;
@@ -29,6 +34,7 @@ public class Game1 : Core
     public Game1() : base("MiniGameGame", 960, 960, false)
     {
         lastWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
+        mouseState = Mouse.GetState();
     }
 
     protected override void Initialize()
@@ -36,6 +42,7 @@ public class Game1 : Core
         desiredGrid = new Point(16,16);
         sizeMultiplyer = 0.8;
         gameSelector = 1; // => tic tac toe
+        isSinglePlr = false;
 
         base.Initialize();
     }
@@ -60,7 +67,7 @@ public class Game1 : Core
             switch (gameSelector)
             {
             case 1:
-                tickTackToeUI = Grid.TicTacToeCoords(desiredGrid, out tickTackToeClickable);
+                ticTacToeUI = Grid.TicTacToeCoords(desiredGrid, out ticTacToeClickable);
                 break;
             case 2:
                 // Code für Wert2
@@ -68,22 +75,21 @@ public class Game1 : Core
             }
             
         }
-        
-        switch (gameSelector)
+        if (mouseState.LeftButton == ButtonState.Pressed)
         {
-            case 1:
-                
-                break;
-            case 2:
-                // Code für Wert2
-                break;
+             switch (gameSelector)
+            {
+                case 1:
+                    ticTacToePlaced = TicTacToe.Logic(ticTacToeClickable, isSinglePlr);
+                    break;
+                case 2:
+                    // Code für Wert2
+                    break;
 
+            }
         }
+       
             
-
-
-
-
         base.Update(gameTime);
     }
 
@@ -101,7 +107,7 @@ public class Game1 : Core
         switch (gameSelector)
         {
             case 1:
-                foreach (var element in tickTackToeUI)
+                foreach (var element in ticTacToeUI)
                 {
                     if (element.Item3 == 2)
                         SpriteBatch.Draw(clickPixelGray, new Vector2(element.Item1, element.Item2), null, Color.White, 0f,
