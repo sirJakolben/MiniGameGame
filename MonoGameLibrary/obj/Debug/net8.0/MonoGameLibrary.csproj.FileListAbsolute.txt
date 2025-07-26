@@ -10,3 +10,4 @@ C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MonoGameLibrary\o
 C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MonoGameLibrary\obj\Debug\net8.0\refint\MonoGameLibrary.dll
 C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MonoGameLibrary\obj\Debug\net8.0\MonoGameLibrary.pdb
 C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MonoGameLibrary\obj\Debug\net8.0\ref\MonoGameLibrary.dll
+C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MonoGameLibrary\obj\Debug\net8.0\MonoGameLibrary.sourcelink.json

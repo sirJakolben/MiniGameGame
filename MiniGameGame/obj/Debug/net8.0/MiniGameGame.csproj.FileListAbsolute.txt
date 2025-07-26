@@ -36,3 +36,4 @@ C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\bin\
 C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\bin\Debug\net8.0\Content\clickPixel\clickPixelwhite.xnb
 C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\bin\Debug\net8.0\Content\clickPixel\clickPixeltest.xnb
 C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\bin\Debug\net8.0\Content\layout.xnb
+C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\obj\Debug\net8.0\MiniGameGame.sourcelink.json

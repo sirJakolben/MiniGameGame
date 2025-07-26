@@ -62,7 +62,8 @@ public class Game1 : Core
         Point currentWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
         if (currentWindowSize != lastWindowSize)
         {
-            gridCoords = Grid.Coords(currentWindowSize, desiredGrid, sizeMultiplyer, out gridGap);
+            gridCoords = Grid.Coords(currentWindowSize, desiredGrid, sizeMultiplyer);
+            gridGap = Grid.gridGap;
             lastWindowSize = currentWindowSize;
             switch (gameSelector)
             {
@@ -112,6 +113,12 @@ public class Game1 : Core
                     if (element.Item3 == 2)
                         SpriteBatch.Draw(clickPixelGray, new Vector2(element.Item1, element.Item2), null, Color.White, 0f,
                                          Vector2.Zero, (float)pixelDimentions, SpriteEffects.None, 0.0f);
+                }
+                if(ticTacToePlaced != null)
+                foreach (var element in ticTacToePlaced)
+                {
+                    SpriteBatch.Draw(clickPixelWhite, new Vector2(element.Item1, element.Item2), null, Color.White, 0f,
+                                        Vector2.Zero, (float)pixelDimentions, SpriteEffects.None, 0.0f);
                 }
                 break;
             case 2:
