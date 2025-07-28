@@ -34,7 +34,6 @@ public class Game1 : Core
     public Game1() : base("MiniGameGame", 960, 960, false)
     {
         lastWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
-        mouseState = Mouse.GetState();
     }
 
     protected override void Initialize()
@@ -43,6 +42,8 @@ public class Game1 : Core
         sizeMultiplyer = 0.8;
         gameSelector = 1; // => tic tac toe
         isSinglePlr = false;
+
+        TicTacToe.Clear();
 
         base.Initialize();
     }
@@ -59,7 +60,10 @@ public class Game1 : Core
 
     protected override void Update(GameTime gameTime)
     {
+        mouseState = Mouse.GetState();
         Point currentWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
+        
+
         if (currentWindowSize != lastWindowSize)
         {
             gridCoords = Grid.Coords(currentWindowSize, desiredGrid, sizeMultiplyer);
@@ -67,14 +71,14 @@ public class Game1 : Core
             lastWindowSize = currentWindowSize;
             switch (gameSelector)
             {
-            case 1:
-                ticTacToeUI = Grid.TicTacToeCoords(desiredGrid, out ticTacToeClickable);
-                break;
-            case 2:
-                // Code für Wert2
-                break;          
+                case 1:
+                    ticTacToeUI = Grid.TicTacToeCoords(desiredGrid, out ticTacToeClickable);
+                    break;
+                case 2:
+                    // Code für Wert2
+                    break;
             }
-            
+
         }
         if (mouseState.LeftButton == ButtonState.Pressed)
         {
