@@ -6,111 +6,121 @@ namespace MonoGameLibrary;
 public class Grid
 {
     public static double gridGap;
+    public static (int x, int y) gridDimentions;
+    public static (int x, int y) gridOffset;
+    public static (int x, int y, int gameId)[] clickableCoords;
     static MouseState mouse;
     static Point mousePos;
-    static Point[] nodeCords; //generates an empty grid with the window size, the desired grid dimentions and the relative grid size on the screen
-    public static Point[] Coords(Point windowSize, Point playGridSize, double sizeMultiplyer)
+    public static (int x, int y)[] NewEmpty(Point windowSize, int gameSelector, double sizeMultiplyer)
     {
-        int offset;
-        if (windowSize.X / playGridSize.X > windowSize.Y / playGridSize.Y)
+        switch (gameSelector)
         {
-            gridGap = windowSize.Y * sizeMultiplyer / playGridSize.Y;
-            offset = (int)(0.5f * (windowSize.Y - sizeMultiplyer * windowSize.Y));
+            case 1: // tic tac toe
+                gridDimentions = (17, 17);
+            break;
+        }
+        if (windowSize.X / gridDimentions.x > windowSize.Y / gridDimentions.y)
+        {
+            gridGap = (int)((float)(windowSize.Y * sizeMultiplyer) / gridDimentions.y);
+            gridOffset = ((int)(0.5f * (windowSize.Y - sizeMultiplyer * windowSize.Y)),
+                          (int)(0.5f * (windowSize.Y - sizeMultiplyer * windowSize.Y)));
         }
         else
         {
-            gridGap = windowSize.X * sizeMultiplyer / playGridSize.X;
-            offset = (int)(0.5f * (windowSize.X - sizeMultiplyer * windowSize.X));
+            gridGap = (int)((float)(windowSize.X * sizeMultiplyer) / gridDimentions.x);
+            gridOffset = ((int)(0.5f * (windowSize.X - sizeMultiplyer * windowSize.X)),
+                          (int)(0.5f * (windowSize.X - sizeMultiplyer * windowSize.X)));
         }
-        nodeCords = new Point[playGridSize.X * playGridSize.Y];
+        (int x, int y)[] pixelCoords = new (int,int)[gridDimentions.x * gridDimentions.y];
         int i = 0;
-        for (int x = 0; x < playGridSize.X; x++)
+        for (int x = 0; x < gridDimentions.x; x++)
         {
-            for (int y = 0; y < playGridSize.Y; y++)
+            for (int y = 0; y < gridDimentions.y; y++)
             {
-                nodeCords[i] = new Point((int)(gridGap * x + offset), (int)(gridGap * y + offset));
+                pixelCoords[i] = ((int)(gridGap * x + gridOffset.x), (int)(gridGap * y + gridOffset.y));
                 i++;
             }
         }
-        return nodeCords; // => this Point[] is a (int,int) array with all the coordinates of the top left pixel corner 
+        return pixelCoords; // => this Point[] is a (int,int) array with all the coordinates of the top left pixel corner 
     }
-    public static (int, int, int)[] TicTacToeCoords(Point playGridSize, out (int, int, int)[] clickableCoords) // generates the tic tac toe UI => the four lines
+    public static (int x, int y, int id)[] TicTacToeUI((int x, int y)[] emptyGrid) // generates the tic tac toe UI => the four lines
     {
-        List<(int, int, int)> ticTacToeList = new();
-        List<(int, int, int)> clickableList = new();
+        List<(int x, int y, int drawId)> UIList = new();
+        List<(int x, int y, int gameId)> clickableList = new();
         int i = 0;
-        for (int y = 0; y < playGridSize.Y; y++)
+        for (int y = 0; y < gridDimentions.y; y++)
         {
-            for (int x = 0; x < playGridSize.X; x++)
+            for (int x = 0; x < gridDimentions.x; x++)
             {
-                if (x == (int)(1.0 / 3 * playGridSize.X) || x == (int)(2.0 / 3 * playGridSize.X) || // vertical lines
-                    y == (int)(1.0 / 3 * playGridSize.Y) || y == (int)(2.0 / 3 * playGridSize.Y)) // horizontal lines
+                if (x == (int)(1.0 / 3 * gridDimentions.x) || x == (int)(2.0 / 3 * gridDimentions.x) || // vertical lines
+                    y == (int)(1.0 / 3 * gridDimentions.y) || y == (int)(2.0 / 3 * gridDimentions.y)) // horizontal lines
                 {
-                    ticTacToeList.Add((nodeCords[i].X, nodeCords[i].Y, 2));
+                    UIList.Add((emptyGrid[i].x, emptyGrid[i].y, 1));
                 }
-                else if (x < 1.0 / 3 * playGridSize.X && y < 1.0 / 3 * playGridSize.Y)
+                else
                 {
-                    clickableList.Add((nodeCords[i].X, nodeCords[i].Y, 1)); // section 1 / 9 is clickable
-                }
-                else if (x < 2.0 / 3 * playGridSize.X && y < 1.0 / 3 * playGridSize.Y &&
-                         x > 1.0 / 3 * playGridSize.X)
-                {
-                    clickableList.Add((nodeCords[i].X, nodeCords[i].Y, 2)); // section 2 / 9 is clickable
-                }
-                else if (x > 2.0 / 3 * playGridSize.X && y < 1.0 / 3 * playGridSize.Y)
-                {
-                    clickableList.Add((nodeCords[i].X, nodeCords[i].Y, 3)); // section 3 / 9 is clickable
-                }
-                else if (x < 1.0 / 3 * playGridSize.X && y < 2.0 / 3 * playGridSize.Y &&
-                                                         y > 1.0 / 3 * playGridSize.X)
-                {
-                    clickableList.Add((nodeCords[i].X, nodeCords[i].Y, 4)); // section 4 / 9 is clickable
-                }
-                else if (x < 2.0 / 3 * playGridSize.X && y < 2.0 / 3 * playGridSize.Y &&
-                         x > 1.0 / 3 * playGridSize.X && y > 1.0 / 3 * playGridSize.X)
-                {
-                    clickableList.Add((nodeCords[i].X, nodeCords[i].Y, 5)); // section 5 / 9 is clickable
-                }
-                else if (x > 2.0 / 3 * playGridSize.X && y < 2.0 / 3 * playGridSize.Y &&
-                                                         y > 1.0 / 3 * playGridSize.X)
-                {
-                    clickableList.Add((nodeCords[i].X, nodeCords[i].Y, 6)); // section 6 / 9 is clickable
-                }
-                else if (x < 1.0 / 3 * playGridSize.X && y > 2.0 / 3 * playGridSize.Y)
-                {
-                    clickableList.Add((nodeCords[i].X, nodeCords[i].Y, 7)); // section 7 / 9 is clickable
-                }
-                else if (x < 2.0 / 3 * playGridSize.X && y > 2.0 / 3 * playGridSize.Y &&
-                         x > 1.0 / 3 * playGridSize.X)
-                {
-                    clickableList.Add((nodeCords[i].X, nodeCords[i].Y, 8)); // section 8 / 9 is clickable
-                }
-                else if (x > 2.0 / 3 * playGridSize.X && y > 2.0 / 3 * playGridSize.Y)
-                {
-                    clickableList.Add((nodeCords[i].X, nodeCords[i].Y, 9)); // section 9 / 9 is clickable
+                    UIList.Add((emptyGrid[i].x, emptyGrid[i].y, 3));
+                    if (x < 1.0 / 3 * gridDimentions.x && y < 1.0 / 3 * gridDimentions.y)
+                    {
+                        clickableList.Add((emptyGrid[i].x, emptyGrid[i].y, 0)); // section 1 / 9 is clickable
+                    }
+                    else if (x < 2.0 / 3 * gridDimentions.x && y < 1.0 / 3 * gridDimentions.y &&
+                            x > 1.0 / 3 * gridDimentions.x)
+                    {
+                        clickableList.Add((emptyGrid[i].x, emptyGrid[i].y, 1)); // section 2 / 9 is clickable
+                    }
+                    else if (x > 2.0 / 3 * gridDimentions.x && y < 1.0 / 3 * gridDimentions.y)
+                    {
+                        clickableList.Add((emptyGrid[i].x, emptyGrid[i].y, 2)); // section 3 / 9 is clickable
+                    }
+                    else if (x < 1.0 / 3 * gridDimentions.x && y < 2.0 / 3 * gridDimentions.y &&
+                                                            y > 1.0 / 3 * gridDimentions.y)
+                    {
+                        clickableList.Add((emptyGrid[i].x, emptyGrid[i].y, 3)); // section 4 / 9 is clickable
+                    }
+                    else if (x < 2.0 / 3 * gridDimentions.x && y < 2.0 / 3 * gridDimentions.y &&
+                            x > 1.0 / 3 * gridDimentions.x && y > 1.0 / 3 * gridDimentions.y)
+                    {
+                        clickableList.Add((emptyGrid[i].x, emptyGrid[i].y, 4)); // section 5 / 9 is clickable
+                    }
+                    else if (x > 2.0 / 3 * gridDimentions.x && y < 2.0 / 3 * gridDimentions.y &&
+                                                            y > 1.0 / 3 * gridDimentions.y)
+                    {
+                        clickableList.Add((emptyGrid[i].x, emptyGrid[i].y, 5)); // section 6 / 9 is clickable
+                    }
+                    else if (x < 1.0 / 3 * gridDimentions.x && y > 2.0 / 3 * gridDimentions.y)
+                    {
+                        clickableList.Add((emptyGrid[i].x, emptyGrid[i].y, 6)); // section 7 / 9 is clickable
+                    }
+                    else if (x < 2.0 / 3 * gridDimentions.x && y > 2.0 / 3 * gridDimentions.y &&
+                            x > 1.0 / 3 * gridDimentions.x)
+                    {
+                        clickableList.Add((emptyGrid[i].x, emptyGrid[i].y, 7)); // section 8 / 9 is clickable
+                    }
+                    else if (x > 2.0 / 3 * gridDimentions.x && y > 2.0 / 3 * gridDimentions.y)
+                    {
+                        clickableList.Add((emptyGrid[i].x, emptyGrid[i].y, 8)); // section 9 / 9 is clickable
+                    }
                 }
                 i++;
             }
         }
-        clickableCoords = clickableList.ToArray();
-        (int, int, int)[] ticTacToeCoords = ticTacToeList.ToArray();
-        return ticTacToeCoords; // this (int,int,int) array contains the coordinates of the devider lines and the vallue (1) for the gray pixel
+        clickableCoords = clickableList.ToArray(); // this contains the subset of Tic Tac Toe UI, that is clickable => squares 1-9
+        (int x, int y, int drawId)[] UICoords = UIList.ToArray();
+        return UICoords; // this contains the Tic Tac Toe UI => 4 lines + squares 1-9
     }
-    public static (int, int, int)[] MouseCollisions((int, int, int)[] clickableTargets)
+    public static (int x, int y, int gameId)? MouseCollision((int x, int y, int gameId)[] clickableTargets)
     {
         mouse = Mouse.GetState();
-        mousePos = mouse.Position;
-
-        List<(int, int, int)> collisionList = new();
+        mousePos = new Point(mouse.X, mouse.Y);
         foreach (var element in clickableTargets)
         {
-            if (mousePos.X > element.Item1 && mousePos.X < (element.Item1 + gridGap) &&
-                mousePos.Y > element.Item2 && mousePos.Y < (element.Item2 + gridGap))
+            if (mousePos.X >= element.Item1 && mousePos.X <= (element.Item1 + gridGap) &&
+                mousePos.Y >= element.Item2 && mousePos.Y <= (element.Item2 + gridGap))
             {
-                collisionList.Add(element);
+                return element;
             }
         }
-        (int, int, int)[] collisionCoords = collisionList.ToArray();
-        return collisionCoords;
+        return null;
     }
 }

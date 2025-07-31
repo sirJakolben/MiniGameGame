@@ -16,24 +16,24 @@ public class TicTacToe
         isPlrOne = false;
         moveList = new();
     }
-    public static (int, int, int)[] Logic((int, int, int)[] clickableCoords, bool isSinglePlr)
+    public static (int, int, int)[] Logic((int, int, int) clickedPos, bool isSinglePlr)
     {
         isPlrOne = !isPlrOne;
-        (int, int, int)[] collision = Grid.MouseCollisions(clickableCoords);
+        
         foreach (var element in moveList)
         {
-            if (element.Item1 + 3 * element.Item2 == collision[0].Item3)
+            if (element.Item1 + 3 * element.Item2 == clickedPos.Item3)
             {
                 return null;
             }
         }
-        int y = (int)(collision[0].Item3 / 3);
-        int x = collision[0].Item3 - y;
+        int y = (int)(clickedPos.Item3 / 3.0);
+        int x = clickedPos.Item3 - y;
         moveList.Add((x, y, isPlrOne));
-        List<(int, int, int)> pixelList = ConvertToPixels(x, y, clickableCoords).ToList(); ;
+        List<(int, int, int)> pixelList = ConvertToPixels(x, y, clickedPos).ToList(); ;
         if (!isPlrOne && isSinglePlr)
         {
-            pixelList.Concat(ConvertToPixels(BotMove().Item1, BotMove().Item2, clickableCoords)).ToList();
+            pixelList.Concat(ConvertToPixels(BotMove().Item1, BotMove().Item2, clickedPos)).ToList();
             isPlrOne = !isPlrOne;
         }
         (int, int, int)[] pixelCoords = pixelList.ToArray();
@@ -44,11 +44,11 @@ public class TicTacToe
     {
         throw new NotImplementedException();
     }
-    static (int, int, int)[] ConvertToPixels(int x, int y, (int,int,int)[] clickableCoords)
+    static (int, int, int)[] ConvertToPixels(int x, int y, (int,int,int) clickedPos)
     {
         List<(int, int, int)> pixelList = new();
         List<(int, int)> clickableList = new();
-        foreach (var element in clickableCoords)
+        foreach (var element in Grid.clickableCoords)
         {
             if (element.Item3 == x + 3 * y)
             {
@@ -75,9 +75,9 @@ public class TicTacToe
         }
         else
         {
-            for (int i = (int)(-1.0 / 2 * smallAxis) - 1; i < (int)(1.0 / 2 * smallAxis); i++)
+            for (int i = (int)(-1.0 / 2 * smallAxis); i < (int)(1.0 / 2 * smallAxis + 1); i++)
             {
-                for (int j = -3; j < 2; j += 2)
+                for (int j = -1; j < 2; j += 2)
                 {
                     pixelList.Add((Convert.ToInt16(middlePixel.Item1 + i* gridGap), 
                                   Convert.ToInt16(middlePixel.Item2 + i * gridGap * j), 3));

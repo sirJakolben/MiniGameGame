@@ -3,26 +3,40 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
 using MiniGameLogic;
+using System.Linq;
 
 namespace MiniGameGame;
 
 
 public class Game1 : Core
 {
-    Point[] gridCoords;
-    Point desiredGrid;
-    double sizeMultiplyer;
-    double gridGap;
-
-    (int, int, int)[] ticTacToeClickable;
-    (int, int, int)[] ticTacToeUI;
-    (int, int, int)[] ticTacToePlaced;
-
-    Point lastWindowSize;
     int gameSelector;
     bool isSinglePlr;
+    Point desiredGrid;
+    double sizeMultiplyer;
 
+    (int x, int y, int gameId)[] clickableCoords;
+    (int x, int y, int gameId) clickedPos;
+    // GAME ID LIST:
+    //---------------------------------
+    // TicTacToe:
+    //  0-8 = the 9 Squares of the 3x3 playing field: top left -> bottom right
+    //---------------------------------
 
+    (int x, int y, int drawId)[] gameUI;
+    (int x, int y, int drawId)[] gamePixels;
+    // DRAW ID LIST:
+    //---------------------------------
+    //  0 = Pixelblack
+    //  1 = Pixelgray
+    //  2 = Pixelwhite
+    //  3 = clickPixelBlack
+    //  4 = clickPixelGray
+    //  5 = clickPixelWhite
+    //---------------------------------
+
+    double gridGap;
+    Point lastWindowSize;
     MouseState mouseState;
     // all the textures
     private Texture2D clickPixelBlack;
@@ -38,7 +52,7 @@ public class Game1 : Core
 
     protected override void Initialize()
     {
-        desiredGrid = new Point(16,16);
+        desiredGrid = new Point(17,17);
         sizeMultiplyer = 0.8;
         gameSelector = 1; // => tic tac toe
         isSinglePlr = false;
@@ -60,76 +74,74 @@ public class Game1 : Core
 
     protected override void Update(GameTime gameTime)
     {
-        mouseState = Mouse.GetState();
-        Point currentWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
-        
-
-        if (currentWindowSize != lastWindowSize)
+        if (mouseState.LeftButton == ButtonState.Pressed && Grid.MouseCollision(clickableCoords) != null)
         {
-            gridCoords = Grid.Coords(currentWindowSize, desiredGrid, sizeMultiplyer);
-            gridGap = Grid.gridGap;
-            lastWindowSize = currentWindowSize;
             switch (gameSelector)
             {
                 case 1:
-                    ticTacToeUI = Grid.TicTacToeCoords(desiredGrid, out ticTacToeClickable);
-                    break;
-                case 2:
-                    // Code für Wert2
-                    break;
-            }
-
-        }
-        if (mouseState.LeftButton == ButtonState.Pressed)
-        {
-             switch (gameSelector)
-            {
-                case 1:
-                    ticTacToePlaced = TicTacToe.Logic(ticTacToeClickable, isSinglePlr);
+                    gamePixels = TicTacToe.Logic(clickedPos, isSinglePlr);
                     break;
                 case 2:
                     // Code für Wert2
                     break;
 
-            }
+            }     
         }
-       
-            
+          
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        double pixelDimentions = gridGap / clickPixelBlack.Width;
+        float pixelDimentions = (float)(gridGap / clickPixelBlack.Width);
+        float pixel2Dimentions = (float)(gridGap / clickPixelGray.Width);
         GraphicsDevice.Clear(Color.CornflowerBlue);
         SpriteBatch.Begin();
-        //SpriteBatch.Draw(layout, Vector2.Zero, Color.White);
-        foreach (var element in gridCoords)
+        Point currentWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
+        if (currentWindowSize != lastWindowSize)
         {
-            SpriteBatch.Draw(clickPixelBlack, new Vector2(element.X, element.Y), null , Color.White, 0f,
-                             Vector2.Zero, (float)pixelDimentions, SpriteEffects.None, 0.0f);
-        }       
-        switch (gameSelector)
-        {
-            case 1:
-                foreach (var element in ticTacToeUI)
-                {
-                    if (element.Item3 == 2)
-                        SpriteBatch.Draw(clickPixelGray, new Vector2(element.Item1, element.Item2), null, Color.White, 0f,
-                                         Vector2.Zero, (float)pixelDimentions, SpriteEffects.None, 0.0f);
-                }
-                if(ticTacToePlaced != null)
-                foreach (var element in ticTacToePlaced)
-                {
-                    SpriteBatch.Draw(clickPixelWhite, new Vector2(element.Item1, element.Item2), null, Color.White, 0f,
-                                        Vector2.Zero, (float)pixelDimentions, SpriteEffects.None, 0.0f);
-                }
-                break;
-            case 2:
-                // Code für Wert2
-                break;
+            switch (gameSelector)
+            {
+                case 1:
+                    (int x, int y)[] emptyGrid = Grid.NewEmpty(currentWindowSize, gameSelector, sizeMultiplyer);
+                    gameUI = Grid.TicTacToeUI(emptyGrid);
+                    break;
+                case 2:
 
+                    break;
+            } 
         }
+        var renderArray1 = gameUI.Concat(gamePixels).ToArray();
+        foreach (var element in renderArray1)
+        {
+            switch (element.drawId)
+            {
+                case 0:
+                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                case 1:
+                    SpriteBatch.Draw(pixelGray, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                case 2:
+                    SpriteBatch.Draw(pixelWhite, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                case 3:
+                    SpriteBatch.Draw(clickPixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                case 4:
+                    SpriteBatch.Draw(clickPixelGray, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                case 5:
+                    SpriteBatch.Draw(clickPixelWhite, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break; 
+            }
+        }                    
             SpriteBatch.End();
             base.Draw(gameTime);
     }
