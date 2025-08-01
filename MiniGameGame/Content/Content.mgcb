@@ -61,6 +61,18 @@
 /processorParam:TextureFormat=Color
 /build:clickPixel/clickPixelwhite.png
 
+#begin clickPixel/highlightPixel.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:clickPixel/highlightPixel.png
+
 #begin layout.png
 /importer:TextureImporter
 /processor:TextureProcessor
