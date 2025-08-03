@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
 using MiniGameLogic;
 using System.Linq;
+using System.Diagnostics;
 
 namespace MiniGameGame;
 
@@ -33,6 +34,8 @@ public class Game1 : Core
     //---------------------------------
     Point lastWindowSize;
     MouseState mouseState;
+    int counter;
+    bool lockInput;
     // all the textures
     private Texture2D pixelBlack;
     private Texture2D pixelGray;
@@ -53,8 +56,10 @@ public class Game1 : Core
     {
         sizeMultiplyer = 0.8;
         gameSelector = 1; // => tic tac toe
-        isSinglePlr = false;
+        isSinglePlr = true;
 
+        counter = 0;
+        lockInput = false;
         TicTacToe.Clear();
 
         base.Initialize();
@@ -65,27 +70,51 @@ public class Game1 : Core
         clickPixelBlack = Content.Load<Texture2D>("clickPixel/clickPixel");
         clickPixelGray = Content.Load<Texture2D>("clickPixel/clickPixelgray");
         clickPixelWhite = Content.Load<Texture2D>("clickPixel/clickPixelwhite");
-
+        pixelBlack = Content.Load<Texture2D>("pixel/pixelBlack");
+        pixelGray = Content.Load<Texture2D>("pixel/pixelGray");
+        pixelWhite = Content.Load<Texture2D>("pixel/pixelWhite");
         highlightPixel = Content.Load<Texture2D>("clickPixel/highlightPixel");
+
         layout = Content.Load<Texture2D>("layout");
+
         base.LoadContent();
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (mouseState.LeftButton == ButtonState.Pressed && Grid.MouseCollision() != null)
+        int inputCount = 0;
+        if (Keyboard.GetState().IsKeyDown(Keys.Enter))
         {
-            var clickedPos = Grid.MouseCollision().Value;
-            switch (gameSelector)
+            if (!lockInput)
             {
-                case 1:
-                    gamePixels = TicTacToe.Logic(clickedPos, isSinglePlr);
-                    break;
-                case 2:
-                    // Code für Wert2
-                    break;
+            counter++;
+            lockInput = true;
+            }
+            inputCount++;
+        } 
+        mouseState = Mouse.GetState();
+        if (mouseState.LeftButton == ButtonState.Pressed && Grid.MouseCollision() != null && !lockInput)
+        {
+            if (!lockInput)
+            {
+                var clickedPos = Grid.MouseCollision().Value;
+                switch (gameSelector)
+                {
+                    case 1:
+                        gamePixels = TicTacToe.Logic(clickedPos, isSinglePlr);
+                        break;
+                    case 2:
+                        // Code für Wert2
+                        break;
 
-            }     
+                }
+                lockInput = true;
+            }
+            inputCount++;
+        }
+        if (inputCount == 0)
+        {
+            lockInput = false;
         }
           
         base.Update(gameTime);
@@ -105,31 +134,36 @@ public class Game1 : Core
             {
                 case 1:
                     gameUI = Grid.TicTacToeUI(emptyGrid);
+                    gamePixels = TicTacToe.ConvertToPixels(TicTacToe.moveList);
                     break;
                 case 2:
 
                     break;
-            } 
+            }
+            lastWindowSize = currentWindowSize;
         }
 
         var renderArray1 = gameUI;
-        if (gamePixels != null) renderArray1.Concat(gamePixels);
+        if (gamePixels != null)
+        {
+            renderArray1 = renderArray1.Concat(gamePixels).ToArray();
+        }
         foreach (var element in renderArray1)
         {
             switch (element.drawId)
             {
-                // case 0:
-                //     SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
-                //     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
-                //     break;
-                // case 1:
-                //     SpriteBatch.Draw(pixelGray, new Vector2(element.x, element.y), null , Color.White, 0f,
-                //     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
-                //     break;
-                // case 2:
-                //     SpriteBatch.Draw(pixelWhite, new Vector2(element.x, element.y), null , Color.White, 0f,
-                //     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
-                //     break;
+                case 0:
+                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                case 1:
+                    SpriteBatch.Draw(pixelGray, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                case 2:
+                    SpriteBatch.Draw(pixelWhite, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break;
                 case 3:
                     SpriteBatch.Draw(clickPixelBlack, new Vector2(element.x, element.y), null, Color.White, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
@@ -147,9 +181,20 @@ public class Game1 : Core
         if (Grid.MouseCollision() != null)
         {
             var mousePos = Grid.MouseCollision().Value;
-            SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y), null, Color.White* 0.5f, 0f,
+            SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y), null, Color.White * 0.5f, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
         }               
+        // var clickable = Grid.clickable;
+        // foreach (var element in clickable)
+        // {
+        //     if (element.gameId  == counter)
+        //         SpriteBatch.Draw(clickPixelWhite, new Vector2(element.x, element.y), null, Color.White, 0f,
+        //         Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+        //     else
+        //     SpriteBatch.Draw(clickPixelGray, new Vector2(element.x, element.y), null, Color.White, 0f,
+        //         Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+        // }
+        
             SpriteBatch.End();
             base.Draw(gameTime);
     }

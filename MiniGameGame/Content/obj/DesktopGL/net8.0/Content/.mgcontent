@@ -10,8 +10,14 @@
     <File>C:/Users/aaron/Programmieren/Visual Code Projekte/MiniGameGame/MiniGameGame/Content/clickPixel/clickPixelwhite.png</File>
     <File>C:/Users/aaron/Programmieren/Visual Code Projekte/MiniGameGame/MiniGameGame/Content/clickPixel/highlightPixel.png</File>
     <File>C:/Users/aaron/Programmieren/Visual Code Projekte/MiniGameGame/MiniGameGame/Content/layout.png</File>
+    <File>C:/Users/aaron/Programmieren/Visual Code Projekte/MiniGameGame/MiniGameGame/Content/pixel/pixelBlack.png</File>
+    <File>C:/Users/aaron/Programmieren/Visual Code Projekte/MiniGameGame/MiniGameGame/Content/pixel/pixelGray.png</File>
+    <File>C:/Users/aaron/Programmieren/Visual Code Projekte/MiniGameGame/MiniGameGame/Content/pixel/pixelWhite.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

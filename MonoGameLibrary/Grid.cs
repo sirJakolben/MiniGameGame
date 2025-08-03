@@ -16,7 +16,7 @@ public class Grid
         switch (gameSelector)
         {
             case 1: // tic tac toe
-                dimentions = (17, 17);
+                dimentions = (64,128);
             break;
         }
         if (windowSize.X / dimentions.x > windowSize.Y / dimentions.y)
@@ -33,9 +33,9 @@ public class Grid
         }
         (int x, int y)[] pixelCoords = new (int,int)[dimentions.x * dimentions.y];
         int i = 0;
-        for (int x = 0; x < dimentions.x; x++)
+        for (int y = 0; y < dimentions.y; y++)
         {
-            for (int y = 0; y < dimentions.y; y++)
+            for (int x = 0; x < dimentions.x; x++)
             {
                 pixelCoords[i] = ((int)(pixelGap * x + offset.x), (int)(pixelGap * y + offset.y));
                 i++;
