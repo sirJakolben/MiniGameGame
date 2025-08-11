@@ -11,9 +11,10 @@ namespace MiniGameGame;
 
 public class Game1 : Core
 {
-    int gameSelector;
+    public static int gameSelector;
     bool isSinglePlr;
     double sizeMultiplyer;
+    double buttonSizeMultiplyer;
 
     // GAME ID LIST:
     //---------------------------------
@@ -23,6 +24,7 @@ public class Game1 : Core
 
     (int x, int y, int drawId)[] gameUI;
     (int x, int y, int drawId)[] gamePixels;
+    (int x, int y, int drawId)[] buttons;
     // DRAW ID LIST:
     //---------------------------------
     //  0 = Pixelblack
@@ -55,6 +57,7 @@ public class Game1 : Core
     protected override void Initialize()
     {
         sizeMultiplyer = 0.8;
+        buttonSizeMultiplyer = 0.8;
         gameSelector = 1; // => tic tac toe
         isSinglePlr = true;
 
@@ -93,21 +96,37 @@ public class Game1 : Core
             inputCount++;
         } 
         mouseState = Mouse.GetState();
-        if (mouseState.LeftButton == ButtonState.Pressed && Grid.MouseCollision() != null && !lockInput)
+        if (mouseState.LeftButton == ButtonState.Pressed)
         {
-            if (!lockInput)
+            if (!lockInput && Grid.MouseCollision() != null)
             {
                 var clickedPos = Grid.MouseCollision().Value;
+                bool clearGame = false;
+                switch (clickedPos.gameId)
+                {
+                    case -2:
+                        isSinglePlr = !isSinglePlr;
+                        clearGame = true;
+                        break;
+                    case -1:
+                        clearGame = true;
+                        break;
+                }
                 switch (gameSelector)
                 {
                     case 1:
-                        gamePixels = TicTacToe.Logic(clickedPos, isSinglePlr);
+                        if (clearGame)
+                        {
+                            TicTacToe.Clear();
+                            gamePixels = TicTacToe.ConvertToPixels(TicTacToe.moveList, TicTacToe.winList);
+                        }
+                        else
+                            gamePixels = TicTacToe.Logic(clickedPos, isSinglePlr);
                         break;
                     case 2:
                         // Code für Wert2
                         break;
-
-                }
+                }          
                 lockInput = true;
             }
             inputCount++;
@@ -122,11 +141,13 @@ public class Game1 : Core
 
     protected override void Draw(GameTime gameTime)
     {
-        float pixelDimentions = (float)(Grid.pixelGap / clickPixelBlack.Width);
-        float pixel2Dimentions = (float)(Grid.pixelGap / clickPixelGray.Width);
+        float pixelDimentions = (float)Grid.pixelGap / (float)clickPixelBlack.Width;
+        float buttonDimentions = (float)Grid.offset.x / (float)clickPixelBlack.Width;
+        if (Grid.offset.x > Grid.offset.y) buttonDimentions = (float)Grid.offset.y / (float)clickPixelBlack.Width;
+        Point currentWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
+
         GraphicsDevice.Clear(Color.CornflowerBlue);
         SpriteBatch.Begin();
-        Point currentWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
         if (currentWindowSize != lastWindowSize)
         {
             (int x, int y)[] emptyGrid = Grid.NewEmpty(currentWindowSize, gameSelector, sizeMultiplyer);
@@ -134,16 +155,17 @@ public class Game1 : Core
             {
                 case 1:
                     gameUI = Grid.TicTacToeUI(emptyGrid);
-                    gamePixels = TicTacToe.ConvertToPixels(TicTacToe.moveList);
+                    gamePixels = TicTacToe.ConvertToPixels(TicTacToe.moveList, TicTacToe.winList);
                     break;
                 case 2:
 
                     break;
             }
+            buttons = Grid.Buttons(currentWindowSize, gameSelector, buttonSizeMultiplyer);
             lastWindowSize = currentWindowSize;
         }
 
-        var renderArray1 = gameUI;
+        var renderArray1 = gameUI.Concat(buttons).ToArray();
         if (gamePixels != null)
         {
             renderArray1 = renderArray1.Concat(gamePixels).ToArray();
@@ -152,6 +174,14 @@ public class Game1 : Core
         {
             switch (element.drawId)
             {
+                case -2:
+                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                case -1:
+                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
+                    break;
                 case 0:
                     SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
@@ -178,11 +208,25 @@ public class Game1 : Core
                     break;
             }
         }
-        if (Grid.MouseCollision() != null)
+        if (Grid.MouseCollision() is var collision && collision.HasValue)
         {
-            var mousePos = Grid.MouseCollision().Value;
-            SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y), null, Color.White * 0.5f, 0f,
+            var mousePos = collision.Value;
+            switch (mousePos.gameId)
+            {
+                case -2:
+                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y), null, Color.White * 0.5f, 0f, 
+                    Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                case -1:
+                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y), null, Color.White * 0.5f, 0f,
+                    Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
+                    break;
+                default:
+                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y), null, Color.White * 0.5f, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
+                    break;
+            }
+
         }               
         // var clickable = Grid.clickable;
         // foreach (var element in clickable)

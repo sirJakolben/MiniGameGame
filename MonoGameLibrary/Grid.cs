@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Formats.Asn1;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 namespace MonoGameLibrary;
@@ -9,6 +11,7 @@ public class Grid
     public static (int x, int y) dimentions;
     public static (int x, int y) offset;
     public static (int x, int y, int gameId)[] clickable;
+    static int smallOffset;
     static MouseState mouse;
     static Point mousePos;
     public static (int x, int y)[] NewEmpty(Point windowSize, int gameSelector, double sizeMultiplyer)
@@ -16,22 +19,25 @@ public class Grid
         switch (gameSelector)
         {
             case 1: // tic tac toe
-                dimentions = (64,128);
-            break;
+                dimentions = (32, 32);
+                break;
         }
-        if (windowSize.X / dimentions.x > windowSize.Y / dimentions.y)
+        if (windowSize.X / dimentions.x >= windowSize.Y / dimentions.y)
         {
             pixelGap = (int)((float)(windowSize.Y * sizeMultiplyer) / dimentions.y);
-            offset = ((int)(0.5f * (windowSize.Y - sizeMultiplyer * windowSize.Y)),
+            offset = ((int)(0.25f * (windowSize.Y - sizeMultiplyer * windowSize.Y)),
                           (int)(0.5f * (windowSize.Y - sizeMultiplyer * windowSize.Y)));
+            smallOffset = offset.x;
         }
         else
         {
             pixelGap = (int)((float)(windowSize.X * sizeMultiplyer) / dimentions.x);
             offset = ((int)(0.5f * (windowSize.X - sizeMultiplyer * windowSize.X)),
-                          (int)(0.5f * (windowSize.X - sizeMultiplyer * windowSize.X)));
+                          (int)(0.25f * (windowSize.X - sizeMultiplyer * windowSize.X)));
+            smallOffset = offset.y;
         }
-        (int x, int y)[] pixelCoords = new (int,int)[dimentions.x * dimentions.y];
+
+        (int x, int y)[] pixelCoords = new (int, int)[dimentions.x * dimentions.y];
         int i = 0;
         for (int y = 0; y < dimentions.y; y++)
         {
@@ -115,12 +121,48 @@ public class Grid
         mousePos = new Point(mouse.X, mouse.Y);
         foreach (var element in clickable)
         {
-            if (mousePos.X >= element.Item1 && mousePos.X <= (element.Item1 + pixelGap) &&
-                mousePos.Y >= element.Item2 && mousePos.Y <= (element.Item2 + pixelGap))
+            switch (element.gameId) 
             {
-                return element;
+                case -2:
+                    if (mousePos.X >= element.Item1 && mousePos.X <= (element.Item1 + smallOffset) && // hitbox der Knöpfe
+                        mousePos.Y >= element.Item2 && mousePos.Y <= (element.Item2 + smallOffset))
+                    {
+                        return element;
+                    }
+                    break;
+                case -1:
+                    if (mousePos.X >= element.Item1 && mousePos.X <= (element.Item1 + smallOffset) &&
+                        mousePos.Y >= element.Item2 && mousePos.Y <= (element.Item2 + smallOffset))
+                    {
+                        return element;
+                    }
+                    break;
+                default:
+                    if (mousePos.X >= element.Item1 && mousePos.X <= (element.Item1 + pixelGap) && // hitbox der Pixel
+                    mousePos.Y >= element.Item2 && mousePos.Y <= (element.Item2 + pixelGap))
+                    {
+                        return element;
+                    }
+                    break;
             }
         }
         return null;
+    }
+    public static (int,int, int drawId)[] Buttons(Point windowSize, int gameSelector, double buttonSizeMultiplyer)
+    {
+        List<(int, int, int gameId)> clickableList = new();
+        List<(int, int, int gameId)> drawList = new();
+        if (dimentions.y * windowSize.Y > dimentions.x * windowSize.X)
+        {
+            clickableList.Add((clickable[0].x, (int)(2 * offset.y + dimentions.y * pixelGap), -1)); // reset button
+            clickableList.Add((clickable[0].x + 2 * smallOffset, (int)(2 * offset.y + dimentions.y * pixelGap), -2)); // singleplayer-multiplayer slider
+        }
+        else
+        {
+            clickableList.Add(((int)(2 * offset.x + dimentions.x * pixelGap), clickable[0].y, -1)); // reset button
+            clickableList.Add(((int)(2 * offset.x + dimentions.x * pixelGap), clickable[0].y + 2 * smallOffset, -2)); // singleplayer-multiplayer slider
+        }
+        clickable = clickable.Concat(clickableList.ToArray()).ToArray();
+        return clickableList.ToArray();
     }
 }
