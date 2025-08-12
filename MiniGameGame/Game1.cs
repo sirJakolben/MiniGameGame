@@ -104,9 +104,19 @@ public class Game1 : Core
                 bool clearGame = false;
                 switch (clickedPos.gameId)
                 {
+                    case -3:
+                        if (!isSinglePlr)
+                        {
+                            isSinglePlr = !isSinglePlr;
+                            clearGame = true;
+                        }
+                        break;
                     case -2:
-                        isSinglePlr = !isSinglePlr;
-                        clearGame = true;
+                        if (isSinglePlr)
+                        {
+                            isSinglePlr = !isSinglePlr;
+                            clearGame = true;
+                        }
                         break;
                     case -1:
                         clearGame = true;
@@ -142,8 +152,7 @@ public class Game1 : Core
     protected override void Draw(GameTime gameTime)
     {
         float pixelDimentions = (float)Grid.pixelGap / (float)clickPixelBlack.Width;
-        float buttonDimentions = (float)Grid.offset.x / (float)clickPixelBlack.Width;
-        if (Grid.offset.x > Grid.offset.y) buttonDimentions = (float)Grid.offset.y / (float)clickPixelBlack.Width;
+        float buttonDimentions = (float)Grid.smallOffset / (float)clickPixelBlack.Width;
         Point currentWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
 
         GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -174,36 +183,48 @@ public class Game1 : Core
         {
             switch (element.drawId)
             {
+                case -3:
+                    if(!isSinglePlr)
+                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y)+ Grid.offset, null , Color.White, 0f,
+                    Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
+                    else
+                    SpriteBatch.Draw(pixelGray, new Vector2(element.x, element.y)+ Grid.offset, null , Color.White, 0f,
+                    Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
+                    break;
                 case -2:
-                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    if(isSinglePlr)
+                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y)+ Grid.offset, null , Color.White, 0f,
+                    Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
+                    else
+                    SpriteBatch.Draw(pixelGray, new Vector2(element.x, element.y)+ Grid.offset, null , Color.White, 0f,
                     Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
                     break;
                 case -1:
-                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y)+ Grid.offset, null , Color.White, 0f,
                     Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
                     break;
                 case 0:
-                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    SpriteBatch.Draw(pixelBlack, new Vector2(element.x, element.y)+ Grid.offset, null , Color.White, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
                     break;
                 case 1:
-                    SpriteBatch.Draw(pixelGray, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    SpriteBatch.Draw(pixelGray, new Vector2(element.x, element.y)+ Grid.offset, null , Color.White, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
                     break;
                 case 2:
-                    SpriteBatch.Draw(pixelWhite, new Vector2(element.x, element.y), null , Color.White, 0f,
+                    SpriteBatch.Draw(pixelWhite, new Vector2(element.x, element.y)+ Grid.offset, null , Color.White, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
                     break;
                 case 3:
-                    SpriteBatch.Draw(clickPixelBlack, new Vector2(element.x, element.y), null, Color.White, 0f,
+                    SpriteBatch.Draw(clickPixelBlack, new Vector2(element.x, element.y)+ Grid.offset, null, Color.White, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
                     break;
                 case 4:
-                    SpriteBatch.Draw(clickPixelGray, new Vector2(element.x, element.y), null, Color.White, 0f,
+                    SpriteBatch.Draw(clickPixelGray, new Vector2(element.x, element.y)+ Grid.offset, null, Color.White, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
                     break;
                 case 5:
-                    SpriteBatch.Draw(clickPixelWhite, new Vector2(element.x, element.y), null, Color.White, 0f,
+                    SpriteBatch.Draw(clickPixelWhite, new Vector2(element.x, element.y)+ Grid.offset, null, Color.White, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
                     break;
             }
@@ -213,16 +234,22 @@ public class Game1 : Core
             var mousePos = collision.Value;
             switch (mousePos.gameId)
             {
+                case -3:
+                    if (!isSinglePlr)
+                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y) + Grid.offset, null, Color.White * 0.5f, 0f, 
+                    Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
+                    break;
                 case -2:
-                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y), null, Color.White * 0.5f, 0f, 
+                    if (isSinglePlr)
+                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y) + Grid.offset, null, Color.White * 0.5f, 0f, 
                     Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
                     break;
                 case -1:
-                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y), null, Color.White * 0.5f, 0f,
+                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y)+ Grid.offset, null, Color.White * 0.5f, 0f,
                     Vector2.Zero, buttonDimentions, SpriteEffects.None, 0.0f);
                     break;
                 default:
-                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y), null, Color.White * 0.5f, 0f,
+                    SpriteBatch.Draw(highlightPixel, new Vector2(mousePos.x, mousePos.y)+ Grid.offset, null, Color.White * 0.5f, 0f,
                     Vector2.Zero, pixelDimentions, SpriteEffects.None, 0.0f);
                     break;
             }

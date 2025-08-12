@@ -34,9 +34,12 @@ public class TicTacToe
                 return ConvertToPixels(moveList, winList);
             }
         }
-        int y = (int)(clickedPos.Item3 / 3.0);
-        int x = clickedPos.Item3 % 3;
-        moveList.Add((x, y, isPlrOne));
+        if (!(moveList.Count() == 0) || !(clickedPos.gameId == -3))
+        {
+           int y = (int)(clickedPos.Item3 / 3.0);
+           int x = clickedPos.Item3 % 3;
+           moveList.Add((x, y, isPlrOne)); 
+        }
         isPlrOne = !isPlrOne;
         plrMoveList = moveList.Where(x => x.isPlrOne == true).ToArray();
         checkPlrWin = CheckWin(plrMoveList, botMoveList);
@@ -61,7 +64,6 @@ public class TicTacToe
 
     static (int, int) BotMove()
     {
-        Debug.WriteLine("BotMove triggered");
         bool invalidMove = true;
         int rndmMove = 0;
         var botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
@@ -69,16 +71,13 @@ public class TicTacToe
         var zwischenSpeicher = CheckWin(botMoveList, plrMoveList); // checks if bot has a wining move
         if (zwischenSpeicher.Count() == 1)
         {
-            Debug.WriteLine("PlaceWin triggered");
             return (zwischenSpeicher[0].Item1, zwischenSpeicher[0].Item2);
         }
         zwischenSpeicher = CheckWin(plrMoveList, botMoveList); // checks if player has a wining move
         if (zwischenSpeicher.Count() == 1)
         {
-            Debug.WriteLine("PreventWin triggered");
             return (zwischenSpeicher[0].Item1, zwischenSpeicher[0].Item2);
-        }
-        Debug.WriteLine("RandomMove triggered");           
+        }         
         while (invalidMove) // places randomly
         {
             invalidMove = false;
@@ -105,8 +104,6 @@ public class TicTacToe
                 return zwischenSpeicher;
             else if (zwischenSpeicher.Count() == 2 && !notPlrMoveList.Any(x => x.Item1 == i))
             {
-                Debug.Write(" collumn: " + i);
-                Debug.WriteLine(string.Join(", ", notPlrMoveList.Select(x => $"({x.Item1},{x.Item2},{x.Item3})")));
                 return new List<(int, int, bool isPlrOne)> {
                     (zwischenSpeicher[0].Item1, 3 - zwischenSpeicher[0].Item2 - zwischenSpeicher[1].Item2, isMovePlr) };
             }
@@ -115,8 +112,6 @@ public class TicTacToe
                 return zwischenSpeicher;
             else if (zwischenSpeicher.Count() == 2 && !notPlrMoveList.Any(x => x.Item2 == i))
             {
-                Debug.Write(" line: " + i);
-                Debug.WriteLine(string.Join(", ", notPlrMoveList.Select(x => $"({x.Item1},{x.Item2},{x.Item3})")));
                 return new List<(int, int, bool isPlrOne)> {
                     (3 - zwischenSpeicher[0].Item1 - zwischenSpeicher[1].Item1, zwischenSpeicher[0].Item2, isMovePlr)};
             }
@@ -129,8 +124,6 @@ public class TicTacToe
             return zwischenSpeicher;
         else if (zwischenSpeicher.Count() == 2 && !notPlrMoveList.Any(m => mainDiag.Any(d => d.Item1 == m.Item1 && d.Item2 == m.Item2)))
         {
-            Debug.Write(" mainDiag");
-            Debug.WriteLine(string.Join(", ", notPlrMoveList.Select(x => $"({x.Item1},{x.Item2},{x.Item3})")));
             return mainDiag.Except(zwischenSpeicher).ToList();
         }
         zwischenSpeicher = plrMoveList.Intersect(antiDiag).ToList();
@@ -138,8 +131,6 @@ public class TicTacToe
             return zwischenSpeicher;
         else if (zwischenSpeicher.Count() == 2 && !notPlrMoveList.Any(m => antiDiag.Any(d => d.Item1 == m.Item1 && d.Item2 == m.Item2)))
         {
-            Debug.Write(" antiDiag");       
-            Debug.WriteLine(string.Join(", ", notPlrMoveList.Select(x => $"({x.Item1},{x.Item2},{x.Item3})")));
             return antiDiag.Except(zwischenSpeicher).ToList();
         }
         return new();
@@ -181,8 +172,7 @@ public class TicTacToe
                             if (!Grid.clickable.Any(Coord => Coord.y == middlePixel.Item2))
                                 offset.Item2 = 0.5;
                             pixelList.Add((Convert.ToInt16(middlePixel.Item1 + Grid.pixelGap * x * (i + offset.Item1)),
-                                           Convert.ToInt16(middlePixel.Item2 + Grid.pixelGap * y * (i + offset.Item2)), 5));
-                                                   
+                                           Convert.ToInt16(middlePixel.Item2 + Grid.pixelGap * y * (i + offset.Item2)), 5));                                                 
                         }
                     }
                 }

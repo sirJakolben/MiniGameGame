@@ -9,9 +9,9 @@ public class Grid
 {
     public static double pixelGap;
     public static (int x, int y) dimentions;
-    public static (int x, int y) offset;
+    public static Vector2 offset;
     public static (int x, int y, int gameId)[] clickable;
-    static int smallOffset;
+    public static int smallOffset;
     static MouseState mouse;
     static Point mousePos;
     public static (int x, int y)[] NewEmpty(Point windowSize, int gameSelector, double sizeMultiplyer)
@@ -25,16 +25,16 @@ public class Grid
         if (windowSize.X / dimentions.x >= windowSize.Y / dimentions.y)
         {
             pixelGap = (int)((float)(windowSize.Y * sizeMultiplyer) / dimentions.y);
-            offset = ((int)(0.25f * (windowSize.Y - sizeMultiplyer * windowSize.Y)),
+            offset = new Vector2((int)(0.25f * (windowSize.Y - sizeMultiplyer * windowSize.Y)),
                           (int)(0.5f * (windowSize.Y - sizeMultiplyer * windowSize.Y)));
-            smallOffset = offset.x;
+            smallOffset = (int)offset.X;
         }
         else
         {
             pixelGap = (int)((float)(windowSize.X * sizeMultiplyer) / dimentions.x);
-            offset = ((int)(0.5f * (windowSize.X - sizeMultiplyer * windowSize.X)),
+            offset = new Vector2((int)(0.5f * (windowSize.X - sizeMultiplyer * windowSize.X)),
                           (int)(0.25f * (windowSize.X - sizeMultiplyer * windowSize.X)));
-            smallOffset = offset.y;
+            smallOffset = (int)offset.Y;
         }
 
         (int x, int y)[] pixelCoords = new (int, int)[dimentions.x * dimentions.y];
@@ -43,7 +43,7 @@ public class Grid
         {
             for (int x = 0; x < dimentions.x; x++)
             {
-                pixelCoords[i] = ((int)(pixelGap * x + offset.x), (int)(pixelGap * y + offset.y));
+                pixelCoords[i] = ((int)(pixelGap * x), (int)(pixelGap * y));
                 i++;
             }
         }
@@ -123,23 +123,16 @@ public class Grid
         {
             switch (element.gameId) 
             {
-                case -2:
-                    if (mousePos.X >= element.Item1 && mousePos.X <= (element.Item1 + smallOffset) && // hitbox der Knöpfe
-                        mousePos.Y >= element.Item2 && mousePos.Y <= (element.Item2 + smallOffset))
-                    {
-                        return element;
-                    }
-                    break;
-                case -1:
-                    if (mousePos.X >= element.Item1 && mousePos.X <= (element.Item1 + smallOffset) &&
-                        mousePos.Y >= element.Item2 && mousePos.Y <= (element.Item2 + smallOffset))
+                case < 0:
+                    if (mousePos.X >= element.Item1 + offset.X && mousePos.X <= (element.Item1 + offset.X + smallOffset) &&
+                        mousePos.Y >= element.Item2 + offset.Y && mousePos.Y <= (element.Item2 + offset.Y + smallOffset))
                     {
                         return element;
                     }
                     break;
                 default:
-                    if (mousePos.X >= element.Item1 && mousePos.X <= (element.Item1 + pixelGap) && // hitbox der Pixel
-                    mousePos.Y >= element.Item2 && mousePos.Y <= (element.Item2 + pixelGap))
+                    if (mousePos.X >= element.Item1 + offset.X && mousePos.X <= (element.Item1 + offset.X + pixelGap) && // hitbox der Pixel
+                    mousePos.Y >= element.Item2 + offset.Y && mousePos.Y <= (element.Item2 + offset.Y  + pixelGap))
                     {
                         return element;
                     }
@@ -151,16 +144,17 @@ public class Grid
     public static (int,int, int drawId)[] Buttons(Point windowSize, int gameSelector, double buttonSizeMultiplyer)
     {
         List<(int, int, int gameId)> clickableList = new();
-        List<(int, int, int gameId)> drawList = new();
         if (dimentions.y * windowSize.Y > dimentions.x * windowSize.X)
         {
-            clickableList.Add((clickable[0].x, (int)(2 * offset.y + dimentions.y * pixelGap), -1)); // reset button
-            clickableList.Add((clickable[0].x + 2 * smallOffset, (int)(2 * offset.y + dimentions.y * pixelGap), -2)); // singleplayer-multiplayer slider
+            clickableList.Add((clickable[0].x,                   (int)(dimentions.y * pixelGap + 0.5 * smallOffset), -1)); // reset button
+            clickableList.Add((clickable[0].x + (int)(1.5 * smallOffset), (int)(dimentions.y * pixelGap + 0.5 * smallOffset), -2)); // singleplayer-multiplayer slider
+            clickableList.Add((clickable[0].x + (int)(2.5 * smallOffset), (int)(dimentions.y * pixelGap + 0.5 * smallOffset), -3)); // singleplayer-multiplayer slider
         }
         else
         {
-            clickableList.Add(((int)(2 * offset.x + dimentions.x * pixelGap), clickable[0].y, -1)); // reset button
-            clickableList.Add(((int)(2 * offset.x + dimentions.x * pixelGap), clickable[0].y + 2 * smallOffset, -2)); // singleplayer-multiplayer slider
+            clickableList.Add(((int)(dimentions.y * pixelGap + 0.5 * smallOffset), clickable[0].y, -1)); // reset button
+            clickableList.Add(((int)(dimentions.y * pixelGap + 0.5 * smallOffset), clickable[0].y + (int)(1.5 * smallOffset), -2)); // singleplayer-multiplayer slider
+            clickableList.Add(((int)(dimentions.y * pixelGap + 0.5 * smallOffset), clickable[0].y + (int)(2.5 * smallOffset), -3)); // singleplayer-multiplayer slider
         }
         clickable = clickable.Concat(clickableList.ToArray()).ToArray();
         return clickableList.ToArray();
