@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Formats.Asn1;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -20,6 +22,9 @@ public class Grid
         {
             case 1: // tic tac toe
                 dimentions = (32, 32);
+                break;
+            case 2: // vier gewinnnt
+                dimentions = (35, 35);
                 break;
         }
         if (windowSize.X / dimentions.x >= windowSize.Y / dimentions.y)
@@ -115,13 +120,29 @@ public class Grid
         (int x, int y, int drawId)[] UICoords = UIList.ToArray();
         return UICoords; // this contains the Tic Tac Toe UI => 4 lines + squares 1-9
     }
+    public static (int x, int y, int id)[] VierGewinntUI((int x, int y)[] emptyGrid)
+    {
+        var lastPixel = emptyGrid[emptyGrid.Count() - 1];
+        var UI1 = emptyGrid.Where(element => element.y >= lastPixel.y - 4 * pixelGap).ToArray();
+        (int x, int y, int drawId)[] UI2 = UI1.Select(element => (element.x, element.y, 1)).ToArray();
+        List<(int x, int y, int gameId)> clickableList = new();
+        foreach (var element in emptyGrid)
+        {
+            int rowNum = (int)Math.Floor(((double)element.x) / (5* pixelGap));
+            if (element.y < lastPixel.y - 4 * pixelGap)
+                clickableList.Add((element.x, element.y, rowNum));  
+        }
+        (int x, int y, int drawId)[] UI3 = clickableList.Select(element => (element.x, element.y, 3)).ToArray(); 
+        clickable = clickableList.ToArray();
+        return UI2.Concat(UI3).ToArray(); 
+    }
     public static (int x, int y, int gameId)? MouseCollision()
     {
         mouse = Mouse.GetState();
         mousePos = new Point(mouse.X, mouse.Y);
         foreach (var element in clickable)
         {
-            switch (element.gameId) 
+            switch (element.gameId)
             {
                 case < 0:
                     if (mousePos.X >= element.Item1 + offset.X && mousePos.X <= (element.Item1 + offset.X + smallOffset) &&
@@ -132,7 +153,7 @@ public class Grid
                     break;
                 default:
                     if (mousePos.X >= element.Item1 + offset.X && mousePos.X <= (element.Item1 + offset.X + pixelGap) && // hitbox der Pixel
-                    mousePos.Y >= element.Item2 + offset.Y && mousePos.Y <= (element.Item2 + offset.Y  + pixelGap))
+                    mousePos.Y >= element.Item2 + offset.Y && mousePos.Y <= (element.Item2 + offset.Y + pixelGap))
                     {
                         return element;
                     }

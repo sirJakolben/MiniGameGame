@@ -21,12 +21,18 @@ public class Game1 : Core
     // TicTacToe:
     //  0-8 = the 9 Squares of the 3x3 playing field: top left -> bottom right
     //---------------------------------
+    // Vier Gewinnt:
+    //  0-6 = the 7 rows of the Playing field
+    //---------------------------------
 
     (int x, int y, int drawId)[] gameUI;
     (int x, int y, int drawId)[] gamePixels;
     (int x, int y, int drawId)[] buttons;
     // DRAW ID LIST:
     //---------------------------------
+    // -3 = Multiplayer Button
+    // -2 = Singleplayer Button 
+    // -1 = Replay Button
     //  0 = Pixelblack
     //  1 = Pixelgray
     //  2 = Pixelwhite
@@ -58,13 +64,13 @@ public class Game1 : Core
     {
         sizeMultiplyer = 0.8;
         buttonSizeMultiplyer = 0.8;
-        gameSelector = 1; // => tic tac toe
+        gameSelector = 2;
         isSinglePlr = true;
 
         counter = 0;
         lockInput = false;
         TicTacToe.Clear();
-
+        VierGewinnt.Clear();
         base.Initialize();
     }
 
@@ -134,8 +140,14 @@ public class Game1 : Core
                             gamePixels = TicTacToe.Logic(clickedPos, isSinglePlr);
                         break;
                     case 2:
-                        // Code für Wert2
-                        break;
+                        if (clearGame)
+                        {
+                            VierGewinnt.Clear();
+                            gamePixels = VierGewinnt.ConvertToPixels(TicTacToe.moveList, TicTacToe.winList);
+                        }
+                        else
+                            gamePixels = VierGewinnt.Logic(clickedPos, isSinglePlr);
+                        break;            
                 }          
                 lockInput = true;
             }
@@ -167,7 +179,8 @@ public class Game1 : Core
                     gamePixels = TicTacToe.ConvertToPixels(TicTacToe.moveList, TicTacToe.winList);
                     break;
                 case 2:
-
+                    gameUI = Grid.VierGewinntUI(emptyGrid);
+                    gamePixels = VierGewinnt.ConvertToPixels(VierGewinnt.moveList, VierGewinnt.winList);
                     break;
             }
             buttons = Grid.Buttons(currentWindowSize, gameSelector, buttonSizeMultiplyer);

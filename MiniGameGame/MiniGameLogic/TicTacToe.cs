@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using MonoGameLibrary;
 
 namespace MiniGameLogic;
@@ -23,17 +21,8 @@ public class TicTacToe
     }
     public static (int, int, int drawId)[] Logic((int, int, int gameId) clickedPos, bool isSinglePlr)
     {
-        var botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
-        var plrMoveList = moveList.Where(x => x.isPlrOne == true).ToArray();
-        var checkPlrWin = CheckWin(plrMoveList, botMoveList);
-        var checkBotWin = CheckWin(botMoveList, plrMoveList);
-        foreach (var element in moveList)
-        {
-            if (element.Item1 + 3 * element.Item2 == clickedPos.Item3 || winList.Count() == 3)
-            {
-                return ConvertToPixels(moveList, winList);
-            }
-        }
+        if (moveList.Any(m => m.Item1 + 3 * m.Item2 == clickedPos.gameId) || winList.Count == 3)
+            return ConvertToPixels(moveList, winList);
         if (!(moveList.Count() == 0) || !(clickedPos.gameId == -3))
         {
            int y = (int)(clickedPos.Item3 / 3.0);
@@ -41,8 +30,9 @@ public class TicTacToe
            moveList.Add((x, y, isPlrOne)); 
         }
         isPlrOne = !isPlrOne;
-        plrMoveList = moveList.Where(x => x.isPlrOne == true).ToArray();
-        checkPlrWin = CheckWin(plrMoveList, botMoveList);
+        var botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
+        var plrMoveList = moveList.Where(x => x.isPlrOne == true).ToArray();
+        var checkPlrWin = CheckWin(plrMoveList, botMoveList);
         if (checkPlrWin.Count() == 3)
         {
             winList = checkPlrWin;
@@ -52,12 +42,12 @@ public class TicTacToe
             var botMove = BotMove();
             moveList.Add((botMove.Item1, botMove.Item2, isPlrOne));
             isPlrOne = !isPlrOne;
-        }
-        botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
-        checkBotWin = CheckWin(botMoveList, plrMoveList);  
-        if (checkBotWin.Count() == 3)
-        {
-            winList = checkBotWin;
+            botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
+            var checkBotWin = CheckWin(botMoveList, plrMoveList);
+            if (checkBotWin.Count() == 3)
+            {
+                winList = checkBotWin;
+            }  
         }  
         return ConvertToPixels(moveList, winList);
     }
