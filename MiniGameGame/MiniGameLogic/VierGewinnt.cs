@@ -24,47 +24,42 @@ public class VierGewinnt
     {
         if (!(moveList.Count() == 0) || !(clickedPos.gameId == -3))
         {
-           int y = (int)(5 - moveList.Where(x => x.Item1 == clickedPos.gameId).Count());
+            int y = (int)(5 - moveList.Where(x => x.Item1 == clickedPos.gameId).Count());
             if ((y < 0))
                 return ConvertToPixels(moveList, winList);
             Debug.Print("y =" + y);
-           int x = clickedPos.Item3;
-           moveList.Add((x, y, isPlrOne)); 
+            int x = clickedPos.Item3;
+            moveList.Add((x, y, isPlrOne));
         }
         if (winList.Count == 4)
             return ConvertToPixels(moveList, winList);
         isPlrOne = !isPlrOne;
-        // var botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
-        // var plrMoveList = moveList.Where(x => x.isPlrOne == true).ToArray();
-        // var checkPlrWin = CheckWin(plrMoveList, botMoveList);
-        // if (checkPlrWin.Count() == 4)
-        // {
-        //     winList = checkPlrWin;
-        // }
-        // else if (!isPlrOne && isSinglePlr && moveList.Count() < 42)
-        // {
-        //     var botMove = BotMove();
-        //     moveList.Add((botMove.Item1, botMove.Item2, isPlrOne));
-        //     isPlrOne = !isPlrOne;
+        var botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
+        var plrMoveList = moveList.Where(x => x.isPlrOne == true).ToArray();
+        var checkPlrWin = CheckWin(plrMoveList, botMoveList);
+        if (checkPlrWin.Count() == 4)
+        {
+            winList = checkPlrWin;
+        }
+        else if (!isPlrOne && isSinglePlr && moveList.Count() < 42)
+        {
+            var botMove = BotMove();
+            moveList.Add((botMove.Item1, botMove.Item2, isPlrOne));
+            isPlrOne = !isPlrOne;
 
-        //     botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
-        //     var checkBotWin = CheckWin(botMoveList, plrMoveList);
-        //     if (checkBotWin.Count() == 4)
-        //     {
-        //         winList = checkBotWin;
-        //     }  
-        // }  
+            botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
+            var checkBotWin = CheckWin(botMoveList, plrMoveList);
+            if (checkBotWin.Count() == 4)
+            {
+                winList = checkBotWin;
+            }  
+        }  
         return ConvertToPixels(moveList, winList);
     }
-   
-    // static (int, int) BotMove()
-    // {
+    static (int, int) BotMove()
+    {
         
-    // }
-    // static List<(int, int, bool isPlrOne)> CheckWin((int, int, bool)[] plrMoveList, (int, int, bool)[] notPlrMoveList)
-    // {
-        
-    // }
+    }
     public static (int, int, int)[] ConvertToPixels(List<(int, int, bool)> moveList, List<(int, int, bool)> winList)
     {
         List<(int, int, int)> pixelList = new();
@@ -101,5 +96,77 @@ public class VierGewinnt
         }
         (int, int, int)[] pixelCoords = pixelList.ToArray();
         return pixelCoords;
+    }
+    static List<(int, int, bool isPlrOne)> CheckWin((int, int, bool)[] plrMoveList, (int, int, bool)[] notPlrMoveList) // returns either list with 3 coords (if win) or list with one coord (if possible win)
+    {
+        List<(int, int, bool isPlrOne)> zwischenSpeicher = new();
+        bool isMovePlr = plrMoveList[0].Item3;
+        for (int i = 0; i < 7; i++) // checks for vertical and horizontal wins / possible wins 
+        {
+            zwischenSpeicher = plrMoveList.Where(x => x.Item1 == i).ToList();
+            int previousPosition = 10;
+            int counter = 0;
+            int index = 0;
+            foreach (var position in zwischenSpeicher)
+            {
+                if (position.Item2 == previousPosition + 1)
+                    counter++;
+                else
+                    counter = 0;
+                if (counter == 3)
+                    return new List<(int, int, bool isPlrOne)>
+                    {
+                        position,
+                        (position.Item1, position.Item2 -1, position.isPlrOne),
+                        (position.Item1, position.Item2 -2, position.isPlrOne),
+                        (position.Item1, position.Item2 -3, position.isPlrOne)
+                    };
+                previousPosition = position.Item2;
+                bool isLast = index == zwischenSpeicher.Count - 1;
+                index++;
+                if (isLast)
+                {
+                    if (counter == 2)
+                    return new List<(int, int, bool isPlrOne)>
+                    {
+                        (position.Item1, position.Item2 +1, position.isPlrOne)
+                    };
+                }
+            }
+            if (i != 7)
+            {
+                zwischenSpeicher = plrMoveList.Where(x => x.Item2 == i).ToList();
+                previousPosition = 10;
+                counter = 0;
+                index = 0;
+                foreach (var position in zwischenSpeicher)
+                {
+                    if (position.Item1 == previousPosition + 1)
+                        counter++;
+                    else
+                        counter = 0;
+                    if (counter == 3)
+                        return new List<(int, int, bool isPlrOne)>
+                        {
+                            position,
+                            (position.Item1 -1, position.Item2, position.isPlrOne),
+                            (position.Item1 -2, position.Item2, position.isPlrOne),
+                            (position.Item1 -3, position.Item2, position.isPlrOne)
+                        };
+                    previousPosition = position.Item1;
+                    bool isLast = index == zwischenSpeicher.Count - 1;
+                    index++;
+                    if (isLast)
+                    {
+                        if (counter == 2)
+                            return new List<(int, int, bool isPlrOne)>
+                        {
+                            (position.Item1 +1, position.Item2, position.isPlrOne)
+                        };
+                    }
+                }
+            }         
+        }
+        return new();
     }
 }
