@@ -25,7 +25,7 @@ public class VierGewinnt
         if (!(moveList.Count() == 0) || !(clickedPos.gameId == -3))
         {
             int y = (int)(5 - moveList.Where(x => x.Item1 == clickedPos.gameId).Count());
-            if ((y < 0))
+            if (y < 0)
                 return ConvertToPixels(moveList, winList);
             Debug.Print("y =" + y);
             int x = clickedPos.Item3;
@@ -53,12 +53,38 @@ public class VierGewinnt
             {
                 winList = checkBotWin;
             }  
-        }  
+        } 
         return ConvertToPixels(moveList, winList);
     }
     static (int, int) BotMove()
     {
-        
+        bool invalidMove = true;
+        int rndmX = 0;
+        int rndmY = 0;
+        var botMoveList = moveList.Where(x => x.isPlrOne == false).ToArray();
+        var plrMoveList = moveList.Where(x => x.isPlrOne == true).ToArray();
+        if (botMoveList.Count() > 1)
+        {
+            var zwischenSpeicher = CheckWin(botMoveList, plrMoveList); // checks if bot has a wining move
+            if (zwischenSpeicher.Count() == 1)
+            {
+                return (zwischenSpeicher[0].Item1, zwischenSpeicher[0].Item2);
+            }
+            zwischenSpeicher = CheckWin(plrMoveList, botMoveList); // checks if player has a wining move
+            if (zwischenSpeicher.Count() == 1)
+            {
+                return (zwischenSpeicher[0].Item1, zwischenSpeicher[0].Item2);
+            }
+        }
+        while (invalidMove) // places randomly
+        {
+            invalidMove = false;
+            rndmX = random.Next(0, 7);
+            rndmY = (int)(5 - moveList.Where(x => x.Item1 == rndmX).Count());
+            if (rndmY < 0)
+                invalidMove = true;
+        }
+        return (rndmX, rndmY);
     }
     public static (int, int, int)[] ConvertToPixels(List<(int, int, bool)> moveList, List<(int, int, bool)> winList)
     {
@@ -104,7 +130,7 @@ public class VierGewinnt
         for (int i = 0; i < 7; i++) // checks for vertical and horizontal wins / possible wins 
         {
             zwischenSpeicher = plrMoveList.Where(x => x.Item1 == i).ToList();
-            int previousPosition = 10;
+            int previousPosition = 69;
             int counter = 0;
             int index = 0;
             foreach (var position in zwischenSpeicher)
@@ -121,13 +147,30 @@ public class VierGewinnt
                         (position.Item1, position.Item2 -2, position.isPlrOne),
                         (position.Item1, position.Item2 -3, position.isPlrOne)
                     };
+                else if (counter == 2)
+                {
+                    if (!moveList.Any(x => x.Item1 == position.Item1 && x.Item2 == position.Item2 + 1))
+                    {
+                        return new List<(int, int, bool isPlrOne)>
+                        {
+                            (position.Item1, position.Item2 + 1, position.isPlrOne),
+                        };
+                    }
+                    else if (!moveList.Any(x => x.Item1 == position.Item1 && x.Item2 == position.Item2 - 3))
+                    {
+                        return new List<(int, int, bool isPlrOne)>
+                        {
+                            (position.Item1, position.Item2 -3, position.isPlrOne),
+                        };
+                    }
+                }
                 previousPosition = position.Item2;
                 bool isLast = index == zwischenSpeicher.Count - 1;
                 index++;
                 if (isLast)
                 {
                     if (counter == 2)
-                    return new List<(int, int, bool isPlrOne)>
+                        return new List<(int, int, bool isPlrOne)>
                     {
                         (position.Item1, position.Item2 +1, position.isPlrOne)
                     };
@@ -136,23 +179,40 @@ public class VierGewinnt
             if (i != 7)
             {
                 zwischenSpeicher = plrMoveList.Where(x => x.Item2 == i).ToList();
-                previousPosition = 10;
+                previousPosition = 69;
                 counter = 0;
                 index = 0;
                 foreach (var position in zwischenSpeicher)
                 {
-                    if (position.Item1 == previousPosition + 1)
-                        counter++;
-                    else
-                        counter = 0;
-                    if (counter == 3)
+                if (position.Item1 == previousPosition + 1)
+                    counter++;
+                else
+                    counter = 0;
+                if (counter == 3)
+                    return new List<(int, int, bool isPlrOne)>
+                    {
+                        position,
+                        (position.Item1 -1, position.Item2, position.isPlrOne),
+                        (position.Item1 -2, position.Item2, position.isPlrOne),
+                        (position.Item1 -3, position.Item2, position.isPlrOne)
+                    };
+                else if (counter == 2)
+                {
+                    if (!moveList.Any(x => x.Item1 == position.Item1 + 1 && x.Item2 == position.Item2))
+                    {
                         return new List<(int, int, bool isPlrOne)>
                         {
-                            position,
-                            (position.Item1 -1, position.Item2, position.isPlrOne),
-                            (position.Item1 -2, position.Item2, position.isPlrOne),
-                            (position.Item1 -3, position.Item2, position.isPlrOne)
+                            (position.Item1 +1, position.Item2, position.isPlrOne),
                         };
+                    }
+                    else if (!moveList.Any(x => x.Item1 == position.Item1 -3 && x.Item2 == position.Item2))
+                    {
+                        return new List<(int, int, bool isPlrOne)>
+                        {
+                            (position.Item1 -3, position.Item2, position.isPlrOne),
+                        };
+                    }
+                }
                     previousPosition = position.Item1;
                     bool isLast = index == zwischenSpeicher.Count - 1;
                     index++;
@@ -167,6 +227,7 @@ public class VierGewinnt
                 }
             }         
         }
+
         return new();
     }
 }
