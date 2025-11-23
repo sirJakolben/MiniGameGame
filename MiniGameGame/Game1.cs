@@ -53,9 +53,9 @@ public class Game1 : Core
     private Texture2D clickPixelWhite;
 
     private Texture2D highlightPixel;
-    private Texture2D layout;
+    private Texture2D Background;
 
-    public Game1() : base("MiniGameGame", 960, 960, false)
+    public Game1() : base("MiniGameGame", 1920, 1080, false)
     {
         lastWindowSize = new Point(Window.ClientBounds.Width, Window.ClientBounds.Height);
     }
@@ -84,7 +84,7 @@ public class Game1 : Core
         pixelWhite = Content.Load<Texture2D>("pixel/pixelWhite");
         highlightPixel = Content.Load<Texture2D>("clickPixel/highlightPixel");
 
-        layout = Content.Load<Texture2D>("layout");
+        Background = Content.Load<Texture2D>("miniGameGame");
 
         base.LoadContent();
     }

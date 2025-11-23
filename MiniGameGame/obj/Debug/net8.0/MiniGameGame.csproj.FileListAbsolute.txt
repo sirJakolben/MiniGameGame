@@ -41,3 +41,4 @@ C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\bin\
 C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\bin\Debug\net8.0\Content\pixel\pixelBlack.xnb
 C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\bin\Debug\net8.0\Content\pixel\pixelGray.xnb
 C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\bin\Debug\net8.0\Content\pixel\pixelWhite.xnb
+C:\Users\aaron\Programmieren\Visual Code Projekte\MiniGameGame\MiniGameGame\bin\Debug\net8.0\Content\MainScreen.xnb

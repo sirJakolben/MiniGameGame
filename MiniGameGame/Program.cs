@@ -1,2 +1,2 @@
-﻿using var game = new MiniGameGame.Game1();
+﻿using var game = new MiniGameGame.MainClass();
 game.Run();
