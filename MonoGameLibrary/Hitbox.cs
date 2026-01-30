@@ -12,7 +12,6 @@ public class Hitbox
             hitboxes[i] = Color.Transparent;
         }
     }
-
     public static Color[] Maker((int,int) startScreen, Vector2 screenSizeMult)
     {
         MouseState mouseState = Mouse.GetState();
